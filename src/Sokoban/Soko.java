@@ -55,8 +55,8 @@ public class Soko extends JFrame implements KeyListener{
 	char[][] Map = new char[SIZE_TILE_X][SIZE_TILE_Y];
 	
 	String[][] Stage ={{ "####################", // 1라운드
-						 "#@ BF    ##     R  #",
-						 "#       Y #        #",
+						 "#@ R     ##     R  #",
+						 "#   B   Y #        #",
 						 "# G####   #Y     . #",
 						 "#  Y###  #####  #  #",
 						 "#    ##      #  #  #",
@@ -74,8 +74,8 @@ public class Soko extends JFrame implements KeyListener{
 						 "#@G            #####",
 					     "#    B    R        #",
 					     "############       #",
-						 "#              Y   #",
-						 "#  B            FRR#",
+						 "#        F     Y   #",
+						 "#  B             RR#",
 						 "#     ##############",
 						 "# G  R             #",
 						 "#                  #",
@@ -107,7 +107,7 @@ public class Soko extends JFrame implements KeyListener{
 						 "# GR   ####   G  ###",
 						 "#  B ######        #",
 						 "#   ######### G    #",
-						 "#   #########     F#",
+						 "#   #########   F  #",
 						 "#    #######    ####",
 						 "###    B       #####",
 						 "###   R      Y     #",
@@ -175,7 +175,7 @@ public class Soko extends JFrame implements KeyListener{
 						 "#####          #####",
 						 "######## @  ########",
 						 "########    ########",
-						 "#####  #       #####",
+						 "#####          #####",
 						 "####   Y   R    ####",
 						 "###  B    #   B  ###",
 						 "##     # F        ##",
@@ -191,7 +191,7 @@ public class Soko extends JFrame implements KeyListener{
 						 "#######        #####",
 						 "####     # G     ###",
 						 "#    G   #  ###  ###",
-						 "#  ###   ##   G  YF#",
+						 "#  ###   ##   G  Y #",
 						 "#             ######",
 						 "#    ######       ##",
 						 "## #    ###      .##",
@@ -241,6 +241,7 @@ public class Soko extends JFrame implements KeyListener{
 				     SIZE_TILE_Y*SIZE_IMAGE_Y+SIZE_LINE_THICK*2+SIZE_TITLE_THICK);
 		this.setResizable(false);
 		this.setVisible(true);		
+		this.setLocationRelativeTo(null);
 		this.setTitle(Title+ " [Stage: "+ (IStage+1) +"]");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	
@@ -343,10 +344,11 @@ public class Soko extends JFrame implements KeyListener{
 		}
 	}
 
-void movePerson() {
-	
+	void movePerson() {
+		
 		//현재위치가 ' '인경우
 		if(' ' == Map[IPersonY][IPersonX]) {
+			
 			//불에 있는 상태일때
 			if('P' == Map[IPersonOldY][IPersonOldX]) {
 				JOptionPane.showConfirmDialog(null, "아 뜨거워! 불에 닿았나봐요!");
@@ -415,8 +417,39 @@ void movePerson() {
 			
 			//불에 부딪히면
 		     if('F' == Map[2*IPersonY - IPersonOldY][2*IPersonX - IPersonOldX]) {
-		    	 return;
-				/* Map[2*IPersonY - IPersonOldY][2*IPersonX - IPersonOldX] = 'Q'; */
+	
+				Map[2*IPersonY - IPersonOldY][2*IPersonX - IPersonOldX] = 'Q'; 
+				Map[IPersonY][IPersonX] = '@';
+				++IKeyCount;
+				
+				if(IKeyCount == 1000) {
+					JOptionPane.showConfirmDialog(null, "너무 많이 움직여 지쳤나봐요...");
+					LoadMap();
+					this.setTitle(Title+ " [Stage: "+ (IStage+1) +"]" ); 
+					repaint();
+					return;
+				}
+				
+				//old타일 처리
+				if('.' == Stage[IStage][IPersonOldY].charAt(IPersonOldX)){    
+				      	Map[IPersonOldY][IPersonOldX] = '.';
+						
+				    }else if('Y' == Stage[IStage][IPersonOldY].charAt(IPersonOldX)){
+				    	Map[IPersonOldY][IPersonOldX] = 'Y';
+				   
+				    }else if('R' == Stage[IStage][IPersonOldY].charAt(IPersonOldX)){
+					    Map[IPersonOldY][IPersonOldX] = 'R';
+						
+					}else if('G' == Stage[IStage][IPersonOldY].charAt(IPersonOldX)){
+					      Map[IPersonOldY][IPersonOldX] = 'G';
+						 
+					}else {
+				    	Map[IPersonOldY][IPersonOldX] = ' ';  
+				    }			
+				
+				this.setTitle(Title+ " [Stage: "+ (IStage+1) +"]" + "[Move: " + IKeyCount+ "]"); 
+				
+				return;
 		    	 
 			  }
 			
@@ -440,10 +473,16 @@ void movePerson() {
 				}
 		     
 		     Map[2*IPersonY - IPersonOldY][2*IPersonX - IPersonOldX] = 'B';
-		     
-		    
+		     		    
 		 
 		}		
+		if('Q' == Map[IPersonY][IPersonX]) {
+			JOptionPane.showConfirmDialog(null, "박스가 불에 타서 움직일 수가 없어요...");
+			LoadMap();
+			this.setTitle(Title+ " [Stage: "+ (IStage+1) +"]" ); 
+			repaint();
+			return;
+		}
 		
 		
 		//밟고 지나가는거 처리
@@ -478,6 +517,7 @@ void movePerson() {
 		System.out.println("IPersonOldX:" + IPersonOldX);
 		System.out.println("IPersonOldY:" + IPersonOldY);
 	}
+
 	
 	@Override
 	public void keyPressed(KeyEvent e) {

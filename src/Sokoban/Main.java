@@ -1,6 +1,6 @@
 package Sokoban;
 
-public class SokobanTestMain {
+public class Main {
 
 	public static void main(String[] args) {
 		new Soko();
